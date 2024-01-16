@@ -2,9 +2,9 @@ import sys
 import os
 import platform
 import builtins
+import Cython.Build as cb
+import numpy
 from os import path
-
-from distutils.command.sdist import sdist
 
 # Optional setuptools features
 # We need to import setuptools early, if we want setuptools features,
@@ -74,60 +74,56 @@ def configuration(parent_package='', top_path=None):
 
 
 def setup_package():
-    try:
-        from numpy import get_include
-    except ImportError:
-        print('To install scikit-multiflow first install numpy.\n' +
-              'For example, using pip:\n' +
-              '$ pip install -U numpy')
-        sys.exit(1)
+
+    from setuptools import Extension
 
     metadata = dict(name=DIST_NAME,
-                    version=VERSION,
-                    license=LICENSE,
-                    url=URL,
-                    download_url=DOWNLOAD_URL,
-                    project_urls=PROJECT_URLS,
-                    maintainer=MAINTAINER,
-                    maintainer_email=MAINTAINER_EMAIL,
+                    #version=VERSION,
+                    #license=LICENSE,
+                    #url=URL,
+                    #download_url=DOWNLOAD_URL,
+                    #project_urls=PROJECT_URLS,
+                    #maintainer=MAINTAINER,
+                    #maintainer_email=MAINTAINER_EMAIL,
                     description=DESCRIPTION,
                     long_description=LONG_DESCRIPTION,
                     long_description_content_type='text/markdown',
                     package_dir={'': 'src'},
-                    install_requires=INSTALL_REQUIRES,
-                    setup_requires=['pytest-runner'],
-                    tests_require=['pytest'],
-                    classifiers=["Intended Audience :: Developers",
-                                 "Intended Audience :: Science/Research",
-                                 'Programming Language :: C',
-                                 'Programming Language :: Python',
-                                 "Programming Language :: Python :: 3",
-                                 'Programming Language :: Python :: 3.5',
-                                 'Programming Language :: Python :: 3.6',
-                                 'Programming Language :: Python :: 3.7',
-                                 'Programming Language :: Python :: 3.8',
-                                 "Topic :: Scientific/Engineering",
-                                 "Topic :: Scientific/Engineering :: Artificial Intelligence",
-                                 "Topic :: Software Development",
-                                 "License :: OSI Approved :: BSD License",
-                                 'Operating System :: POSIX',
-                                 'Operating System :: Unix',
-                                 'Operating System :: MacOS',
-                                 'Operating System :: Microsoft :: Windows'
-                                 ],
+                    #install_requires=INSTALL_REQUIRES,
+                    #setup_requires=['pytest-runner'],
+                    #tests_require=['pytest'],
+                    # classifiers=["Intended Audience :: Developers",
+                    #              "Intended Audience :: Science/Research",
+                    #              'Programming Language :: C',
+                    #              'Programming Language :: Python',
+                    #              "Programming Language :: Python :: 3",
+                    #              'Programming Language :: Python :: 3.5',
+                    #              'Programming Language :: Python :: 3.6',
+                    #              'Programming Language :: Python :: 3.7',
+                    #              'Programming Language :: Python :: 3.8',
+                    #              "Topic :: Scientific/Engineering",
+                    #              "Topic :: Scientific/Engineering :: Artificial Intelligence",
+                    #              "Topic :: Software Development",
+                    #              "License :: OSI Approved :: BSD License",
+                    #              'Operating System :: POSIX',
+                    #              'Operating System :: Unix',
+                    #              'Operating System :: MacOS',
+                    #              'Operating System :: Microsoft :: Windows'
+                    #              ],
                     python_requires=">=3.5",
                     zip_safe=False,  # the package can run out of an .egg file
                     include_package_data=True,
-                    cmdclass={'sdist': sdist})
+                    ext_modules=[
+                        Extension('skmultiflow.metrics._confusion_matrix',sources=['src/skmultiflow/metrics/_confusion_matrix.pyx'],include_dirs=[numpy.get_include()]),
+                        Extension('skmultiflow.metrics._classification_performance_evaluator',sources=['src/skmultiflow/metrics/_classification_performance_evaluator.pyx'],include_dirs=[numpy.get_include()])],
+                    cmdclass={'sdist': setuptools.dist})
 
     if sys.version_info < (3, 5):
         raise RuntimeError("scikit-multiflow requires Python 3.5 or later. "
                            "The current Python version is {} installed in {}}.".
                            format(platform.python_version(), sys.executable))
-
-    from numpy.distutils.core import setup
-
-    metadata['configuration'] = configuration
+    
+    from setuptools import setup
 
     setup(**metadata)
 

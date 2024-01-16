@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools","Cython","numpy"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scikit-multiflow"
+version = "0.5.4"
+description = "A fork of scikit-multiflow to update to current python version"
+readme = "README.md"
+requires-python = ">=3.10"
+
+[install-requires]
+
+dependencies = [
+  "sortedcontainers",
+  "numpy",
+  "scipy",
+  "matplotlib",
+  "scikit-learn",
+  "pandas"
+]
